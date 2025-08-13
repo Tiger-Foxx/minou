@@ -227,6 +227,33 @@ Message de {user_name}: "{user_message}"
             from utils import get_system_info
             return [f"🖥️ Voici l'état de ton système :\n{get_system_info()}\n{pet_name} surveille tout ! 🕵️‍♂️"]
         
+        # AJOUT : Réponses éducatives
+        if any(word in message for word in ['physique', 'science', 'chimie', 'mathématiques', 'math']):
+            educational_responses = [
+                "🔬 La physique quantique, c'est fascinant ! Les particules peuvent être à deux endroits à la fois ! Comme moi quand je cours partout ! 😸",
+                "⚗️ La chimie, c'est comme une cuisine géante ! Les atomes se mélangent pour créer de nouvelles choses !",
+                "📐 Les maths sont partout ! Même dans mes sauts, j'utilise la trajectoire parabolique ! 🦘",
+                "🌟 L'univers est immense ! Il y a plus d'étoiles que de grains de sable sur Terre !",
+                "⚛️ Savais-tu que nos corps sont faits d'atomes vieux de milliards d'années ? Nous sommes de la poussière d'étoiles ! ✨"
+            ]
+            return educational_responses
+        
+        if any(word in message for word in ['histoire', 'géographie', 'culture']):
+            cultural_responses = [
+                "🏛️ L'histoire est pleine de surprises ! Savais-tu que les chats étaient vénérés dans l'Égypte antique ? 😺",
+                "🗺️ Il y a plus de 7000 langues dans le monde ! Miaou se dit différemment partout !",
+                "🎭 Chaque culture a ses propres légendes sur les animaux magiques ! Moi je suis un chat virtuel magique ! ✨"
+            ]
+            return cultural_responses
+        
+        if any(word in message for word in ['nature', 'environnement', 'écologie']):
+            eco_responses = [
+                "🌱 Protéger l'environnement c'est important ! Même virtuellement, je fais attention ! 🌍",
+                "🐝 Les abeilles pollinisent 1/3 de notre nourriture ! Sans elles, pas de fruits ! 🍎",
+                "♻️ Recycler c'est donner une seconde vie aux objets ! Moi je recycle mes animations ! 😸"
+            ]
+            return eco_responses
+        
         # Amour/affection
         if any(word in message for word in ['aime', 'love', 'amour', 'câlin', 'bisou', 'coeur']):
             return [

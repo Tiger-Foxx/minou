@@ -127,7 +127,7 @@ class FoodItem(QLabel):
             QLabel {{
                 border: 4px solid {DARK_THEME['accent_blue']};
                 box-shadow: 0px 0px 15px {DARK_THEME['accent_blue']};
-                transform: scale(1.1);
+                background-color: rgba(0, 212, 255, 50);
             }}
             """)
     
@@ -301,7 +301,7 @@ class PoopItem(QLabel):
         self.setStyleSheet(self.styleSheet() + f"""
         QLabel {{
             border: 3px solid {DARK_THEME['error']};
-            transform: scale(1.1);
+            background-color: rgba(239, 68, 68, 50);
         }}
         """)
     

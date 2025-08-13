@@ -244,14 +244,19 @@ class SpeechBubble(QWidget):
         self.message = text
         self.bubble_type = msg_type
         
-        # Calculer la taille nécessaire
+        # CORRECTION : Calculer la taille plus précisément
         font = QFont("Arial", 11, QFont.Bold)
-        metrics = self.fontMetrics()
-        text_rect = metrics.boundingRect(0, 0, 300, 100, Qt.TextWordWrap, text)
+        from PyQt5.QtGui import QFontMetrics
+        metrics = QFontMetrics(font)
         
-        bubble_width = max(200, text_rect.width() + 40)
-        bubble_height = max(60, text_rect.height() + 30)
-        self.resize(bubble_width, bubble_height + 20)  # +20 pour la queue
+        # Largeur maximum de 400 pixels
+        max_width = 400
+        text_rect = metrics.boundingRect(0, 0, max_width, 500, Qt.TextWordWrap, text)
+        
+        bubble_width = max(200, text_rect.width() + 60)  # Plus de marge
+        bubble_height = max(80, text_rect.height() + 50)  # Plus de marge
+        
+        self.resize(bubble_width, bubble_height + 25)  # +25 pour la queue
         
         # Animation d'apparition
         self.setWindowOpacity(0)
@@ -349,16 +354,17 @@ class MinimalChatInterface(QWidget):
     def _init_ui(self):
         # Container principal
         self.container = QFrame(self)
-        self.container.setGeometry(0, 0, 300, 40)
+        self.container.setGeometry(0, 0, 300, 50)  # CORRECTION : 50 au lieu de 40
         
         # Layout principal
         layout = QHBoxLayout(self.container)
         layout.setContentsMargins(5, 5, 5, 5)
         layout.setSpacing(5)
         
-        # Champ de saisie (initialement petit)
+        # Champ de saisie plus haut
         self.input_field = QLineEdit()
         self.input_field.setPlaceholderText("Parle à Minou...")
+        self.input_field.setFixedHeight(35)  # AJOUT : Hauteur fixe
         self.input_field.setStyleSheet(f"""
         QLineEdit {{
             background-color: {DARK_THEME['bg_secondary']};
@@ -366,7 +372,8 @@ class MinimalChatInterface(QWidget):
             border: 2px solid {DARK_THEME['accent_blue']};
             border-radius: 18px;
             padding: 8px 15px;
-            font-size: 12px;
+            font-size: 14px;  /* CORRECTION : Plus gros */
+            min-height: 20px;  /* AJOUT */
         }}
         QLineEdit:focus {{
             border-color: {DARK_THEME['accent_purple']};
@@ -390,8 +397,27 @@ class MinimalChatInterface(QWidget):
         }}
         """)
         
+        # Bouton de fermeture
+        self.close_btn = QPushButton("✕")
+        self.close_btn.setFixedSize(30, 30)
+        self.close_btn.setStyleSheet(f"""
+        QPushButton {{
+            background-color: {DARK_THEME['error']};
+            color: white;
+            border: none;
+            border-radius: 15px;
+            font-size: 16px;
+            font-weight: bold;
+        }}
+        QPushButton:hover {{
+            background-color: #cc0000;
+        }}
+        """)
+        self.close_btn.clicked.connect(self.hide)
+        
         layout.addWidget(self.input_field)
         layout.addWidget(self.send_btn)
+        layout.addWidget(self.close_btn)  # AJOUT
         
         # Connexions
         self.input_field.returnPressed.connect(self.send_message)

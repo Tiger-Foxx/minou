@@ -68,6 +68,7 @@ class MinouPet(QWidget):
         self.is_edge_running = False
         self.is_sliding = False
         self.dragging = False
+        self.quiet_mode = False  # AJOUT : Mode tranquille
         
         # Interactions
         self._click_count = 0
@@ -216,6 +217,11 @@ class MinouPet(QWidget):
         pet_type_menu.addAction(self.dog_action)
         pet_menu.addMenu(pet_type_menu)
         
+        # AJOUT : Option Rester tranquille
+        self.stay_quiet_action = QAction("😴 Rester tranquille", self)
+        self.stay_quiet_action.triggered.connect(self._toggle_quiet_mode)
+        pet_menu.addAction(self.stay_quiet_action)
+        
         tray_menu.addMenu(pet_menu)
         
         # Paramètres et informations
@@ -266,18 +272,20 @@ class MinouPet(QWidget):
         # Démarrage des timers principaux
         self.animation_timer.start(config_manager.get("animation_speed", ANIMATION_FRAME_RATE))
         self.movement_timer.start(16)  # ~60 FPS
-        self.random_behavior_timer.start(MOVEMENT_CHANGE_DELAY)
-        self.poop_spawn_timer.start(15000)  # 15 secondes
         
-        # Messages aléatoires si activés
+        # CORRECTION : Intervalles plus longs pour moins de mouvement
+        self.random_behavior_timer.start(8000)  # 8 secondes au lieu de 3
+        self.poop_spawn_timer.start(30000)  # 30 secondes au lieu de 15
+        
+        # Messages aléatoires moins fréquents
         if config_manager.get("random_messages_enabled", True):
-            interval_range = config_manager.get("random_message_interval", [300, 900])
+            interval_range = config_manager.get("random_message_interval", [600, 1800])  # 10-30 min
             interval = random.randint(interval_range[0], interval_range[1]) * 1000
             self.random_message_timer.start(interval)
         
-        # Audio si activé
+        # CORRECTION : Audio moins fréquent (1 fois par minute)
         if config_manager.get("sound_enabled", True):
-            self.audio_play_timer.start(random.randint(5000, 15000))
+            self.audio_play_timer.start(60000)  # 60 secondes
         
         # Animation du tray
         self.tray_animation_timer.start(ANIMATION_FRAME_RATE * 2)
@@ -650,7 +658,8 @@ class MinouPet(QWidget):
     def _random_movement(self):
         """Génère un mouvement aléatoire"""
         if (self.is_playing_one_shot_animation or self.is_sliding or 
-            self._is_manual_moving or self.is_dead or self.target_food_item):
+            self._is_manual_moving or self.is_dead or self.target_food_item or
+            self.quiet_mode):  # AJOUT : vérifier le mode tranquille
             return
         
         choice = random.random()
@@ -978,8 +987,8 @@ class MinouPet(QWidget):
             self.media_player.setMedia(QMediaContent(audio_url))
             self.media_player.play()
         
-        # Programmer le prochain son
-        self.audio_play_timer.start(random.randint(5000, 15000))
+        # CORRECTION : Prochain son dans 60 secondes minimum
+        self.audio_play_timer.start(random.randint(60000, 120000))  # 1-2 minutes
     
     def _audio_state_changed(self, state):
         """Appelé quand l'état audio change"""
@@ -1408,6 +1417,33 @@ class MinouPet(QWidget):
                 self.is_edge_running = False
                 self.is_sliding = False
                 self._is_manual_moving = False
+    
+    def _toggle_quiet_mode(self):
+        """Active/désactive le mode tranquille"""
+        self.quiet_mode = not self.quiet_mode
+        
+        if self.quiet_mode:
+            # Arrêter tous les mouvements
+            self.random_behavior_timer.stop()
+            self.audio_play_timer.stop()
+            self.random_message_timer.stop()
+            self.media_player.stop()
+            
+            self.cat_velocity_x = 0.0
+            self.cat_velocity_y = 0.0
+            self._set_animation('Idle')
+            
+            self.stay_quiet_action.setText("😸 Reprendre activité")
+            self.show_bubble("😴 Mode tranquille activé", "info", 2000)
+        else:
+            # Reprendre l'activité
+            if not self.is_dead:
+                self.random_behavior_timer.start(8000)
+                if config_manager.get("sound_enabled", True):
+                    self.audio_play_timer.start(60000)
+            
+            self.stay_quiet_action.setText("😴 Rester tranquille")
+            self.show_bubble("😸 Je reprends mes activités !", "love", 2000)
     
     # Méthode de fermeture
     def closeEvent(self, event):
