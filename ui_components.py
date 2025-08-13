@@ -231,6 +231,7 @@ class SpeechBubble(QWidget):
         self.setAttribute(Qt.WA_TranslucentBackground)
         self.message = ""
         self.bubble_type = "normal"  # normal, love, alert, info
+        self.is_pinned = False  # État d'épinglage
         
         # Timer pour l'auto-disparition
         self.fade_timer = QTimer()
@@ -244,8 +245,9 @@ class SpeechBubble(QWidget):
     def show_message(self, text, msg_type="normal", duration=3000):
         self.message = text
         self.bubble_type = msg_type
+        self.is_pinned = False  # Réinitialiser l'état d'épinglage
         
-        # CORRECTION : Calculer la taille plus précisément
+        # Calculer la taille plus précisément
         font = QFont("Arial", 11, QFont.Bold)
         from PyQt5.QtGui import QFontMetrics
         metrics = QFontMetrics(font)
@@ -259,6 +261,31 @@ class SpeechBubble(QWidget):
         
         self.resize(bubble_width, bubble_height + 25)  # +25 pour la queue
         
+        # Créer le bouton de fermeture s'il n'existe pas
+        if not hasattr(self, 'close_btn'):
+            self.close_btn = QPushButton("✕", self)
+            self.close_btn.setFixedSize(20, 20)
+            self.close_btn.setStyleSheet("""
+                QPushButton {
+                    background-color: rgba(255, 255, 255, 0.3);
+                    border: none;
+                    border-radius: 10px;
+                    color: white;
+                    font-weight: bold;
+                    font-size: 14px;
+                    padding: 2px;
+                    margin: 2px
+                }
+                QPushButton:hover {
+                    background-color: rgba(255, 100, 100, 0.8);
+                }
+            """)
+            self.close_btn.clicked.connect(self.hide)
+        
+        # Positionner le bouton de fermeture en haut à droite
+        self.close_btn.move(self.width() - 30, 10)
+        self.close_btn.raise_()
+        
         # Animation d'apparition
         self.setWindowOpacity(0)
         self.show()
@@ -266,12 +293,35 @@ class SpeechBubble(QWidget):
         self.appear_animation.setEndValue(1)
         self.appear_animation.start()
         
-        if duration > 0:
+        # Gérer le timer en fonction de l'état d'épinglage
+        if not self.is_pinned and duration > 0:
             self.fade_timer.start(duration)
+            self.close_btn.hide()
+        else:
+            self.fade_timer.stop()
+            self.close_btn.show()
     
     def fade_out(self):
-        self.fade_timer.stop()
-        self.hide()
+        if not self.is_pinned:  # Ne pas masquer si épinglé
+            self.fade_timer.stop()
+            self.hide()
+    
+    def toggle_pin(self):
+        """Bascule l'état d'épinglage de la bulle"""
+        self.is_pinned = not self.is_pinned
+        
+        if self.is_pinned:
+            # Épingler : arrêter le timer
+            self.fade_timer.stop()
+        else:
+            # Désépingler : redémarrer le timer
+            self.fade_timer.start(3000)  # 3 secondes par défaut
+    
+    def mousePressEvent(self, event):
+        """Gère le clic sur la bulle pour l'épingler/désépingler"""
+        if event.button() == Qt.LeftButton:
+            self.toggle_pin()
+        super().mousePressEvent(event)
     
     def paintEvent(self, event):
         """Dessine la bulle de dialogue"""
@@ -284,7 +334,7 @@ class SpeechBubble(QWidget):
                 "normal": (DARK_THEME['bg_secondary'], DARK_THEME['text_primary']),
                 "love": (DARK_THEME['accent_purple'], "white"),
                 "alert": (DARK_THEME['error'], "white"), 
-                "info": (DARK_THEME['accent_blue'], "white")
+                "info": (DARK_THEME['bg_secondary'], "white")
             }
             
             bg_color, text_color = colors.get(self.bubble_type, colors["normal"])

@@ -1230,9 +1230,28 @@ class MinouPet(QWidget):
     
     # Méthodes d'interface utilisateur
     def show_bubble(self, message, bubble_type="normal", duration=3000):
-        """Affiche une bulle de dialogue au-dessus de l'animal"""
+        """Affiche une bulle de dialogue au-dessus de l'animal avec durée adaptative"""
         if not self.speech_bubble:
             return
+        
+        # Calculer la durée en fonction de la longueur du message
+        if duration == 3000 or duration == 5000:  # Si c'est la durée par défaut
+            # Calcul intelligent : ~200ms par mot + temps de base
+            word_count = len(message.split())
+            char_count = len(message)
+            
+            # Temps de base + temps de lecture
+            base_time = 2000  # 2 secondes de base
+            reading_time = max(
+                word_count * 400,    # 400ms par mot (lecture normale)
+                char_count * 50      # 50ms par caractère (sécurité)
+            )
+            
+            # Durée totale avec limites
+            calculated_duration = base_time + reading_time
+            duration = max(4000, min(calculated_duration, 20000))  # Entre 4s et 20s
+            
+            print(f"💬 Bulle: {word_count} mots, {char_count} chars -> {duration//1000}s")
         
         # Position de la bulle au-dessus de l'animal
         pet_pos = self.pos()
