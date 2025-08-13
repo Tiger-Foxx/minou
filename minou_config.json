@@ -1,10 +1,10 @@
 {
     "pet_type": "cat",
     "pet_name": "Minou",
-    "user_name": "Fox",
+    "user_name": "Inconnu",
     "movement_speed": 3,
     "animation_speed": 100,
-    "sound_enabled": false,
+    "sound_enabled": true,
     "poop_interval": 15000,
     "ai_enabled": true,
     "gemini_api_key": "AIzaSyDZH3jlitdjcJZA07SF4IMQv0D75ZnmqK0",
@@ -23,6 +23,6 @@
     "research_suggestions_enabled": true,
     "theme": "dark",
     "opacity": 100,
-    "bubble_duration": 3000,
+    "bubble_duration": 4000,
     "first_launch": false
 }

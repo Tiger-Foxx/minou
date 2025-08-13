@@ -1,0 +1,1 @@
+pyinstaller --name=Minou --windowed --clean --noconfirm --exclude-module=tkinter --exclude-module=matplotlib --exclude-module=numpy --exclude-module=pandas --hidden-import=google.generativeai --hidden-import=google.generativeai.types --hidden-import=google.generativeai.string_utils --add-data="assets;assets" --icon=assets/icons/minou.ico --optimize=1 main.py
