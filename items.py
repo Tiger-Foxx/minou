@@ -279,21 +279,27 @@ class PoopItem(QLabel):
             self.clean_poop()
     
     def clean_poop(self):
-        """Nettoie le poop avec animation"""
-        # Animation de disparition
-        fade_out = QPropertyAnimation(self, b"windowOpacity")
-        fade_out.setDuration(300)
-        fade_out.setStartValue(1)
-        fade_out.setEndValue(0)
-        fade_out.finished.connect(lambda: self.poop_removed.emit(self))
-        fade_out.start()
+        """Nettoie le poop"""
+        print(f"🧹 [PoopItem] clean_poop() appelé pour {self}")
         
         # Arrêter le timer de décomposition
         self.decay_timer.stop()
+        print("   ⏱️ Timer de décomposition arrêté")
+        
+        # Émettre directement le signal au lieu de faire une animation qui bug
+        print("   📡 Émission du signal poop_removed")
+        self.poop_removed.emit(self)
+        
+        # Animation simple de disparition
+        print("   👻 Masquage du PoopItem")
+        self.hide()
     
     def auto_remove(self):
         """Suppression automatique après expiration"""
+        print(f"⏰ [PoopItem] auto_remove() appelé pour {self}")
         self.decay_timer.stop()
+        print("   ⏱️ Timer de décomposition arrêté")
+        print("   📡 Émission du signal poop_removed")
         self.poop_removed.emit(self)
     
     def enterEvent(self, event):

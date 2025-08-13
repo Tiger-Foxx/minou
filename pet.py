@@ -962,10 +962,17 @@ class MinouPet(QWidget):
     
     def _on_poop_removed(self, poop_item):
         """Appelé quand un poop est nettoyé"""
+        print(f"🧹 [MinouPet] _on_poop_removed() appelé pour {poop_item}")
         if poop_item in self.active_poop_items:
+            print(f"   🔍 PoopItem trouvé dans active_poop_items (count: {len(self.active_poop_items)})")
             poop_item.hide()
+            print("   👻 PoopItem masqué")
             poop_item.deleteLater()
+            print("   🗑️  PoopItem marqué pour suppression")
             self.active_poop_items.remove(poop_item)
+            print(f"   ✅ PoopItem retiré de active_poop_items (nouveau count: {len(self.active_poop_items)})")
+        else:
+            print("   ❌ PoopItem non trouvé dans active_poop_items")
     
     def clear_all_poop(self):
         """Nettoie tous les poops"""
