@@ -210,11 +210,11 @@ def check_ai_status(pet):
         api_key = config_manager.get("gemini_api_key", "")
         if api_key:
             if gemini_ai.api_available:
-                pet.show_bubble("🤖 IA Gemini connectée ! Tu peux me parler ! 💭", "info", 3000)
+                pet.show_bubble("🤖 IA connectée ! Tu peux me parler ! 💭", "info", 3000)
             else:
-                pet.show_bubble("⚠️ Problème avec l'IA - Mode hors-ligne activé", "alert", 4000)
+                pet.show_bubble("⚠️ Pas de connexion IA - Mode hors-ligne activé", "alert", 4000)
         else:
-            pet.show_bubble("💡 Configure une clé API Gemini dans les paramètres pour l'IA !", "info", 4000)
+            pet.show_bubble("💡 Configure une clé API Gemini dans les paramètres pour l'IA !", "info", 8000)
 
 def show_system_status(pet):
     """Affiche le statut système initial"""

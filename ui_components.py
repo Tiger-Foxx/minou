@@ -11,6 +11,7 @@ from PyQt5.QtGui import (QFont, QPainter, QPainterPath, QColor, QBrush,
                          QPen, QLinearGradient)
 from config import DARK_THEME, config_manager
 from utils import reminder_manager, notes_manager
+from PyQt5.QtWidgets import QSizePolicy
 
 class ControlBox(QWidget):
     move_left_signal = pyqtSignal()
@@ -341,88 +342,133 @@ class MinimalChatInterface(QWidget):
         super().__init__(parent)
         self.setWindowFlags(Qt.FramelessWindowHint | Qt.WindowStaysOnTopHint | Qt.Tool)
         self.setAttribute(Qt.WA_TranslucentBackground)
-        self.setFixedSize(300, 40)
         
-        self.is_expanded = False
+        # CORRECTION : Commencer avec une taille plus grande
+        self.setFixedSize(450, 120)  # Plus grand dès le départ
+        
         self.auto_hide_timer = QTimer()
-        self.auto_hide_timer.timeout.connect(self.collapse)
+        self.auto_hide_timer.timeout.connect(self.hide)
         self.auto_hide_timer.setSingleShot(True)
         
         self._init_ui()
-        self.hide()  # Caché par défaut
+        self.hide()
         
     def _init_ui(self):
-        # Container principal
+        # CORRECTION : Container qui grandit avec le contenu
         self.container = QFrame(self)
-        self.container.setGeometry(0, 0, 300, 50)  # CORRECTION : 50 au lieu de 40
+        self.container.setGeometry(0, 0, 450, 120)  # Taille initiale plus grande
         
-        # Layout principal
         layout = QHBoxLayout(self.container)
-        layout.setContentsMargins(5, 5, 5, 5)
-        layout.setSpacing(5)
+        layout.setContentsMargins(15, 15, 15, 15)  # Marges cohérentes
+        layout.setSpacing(10)
         
-        # Champ de saisie plus haut
-        self.input_field = QLineEdit()
+        # CORRECTION : Champ de saisie avec tailles cohérentes
+        self.input_field = QTextEdit()
         self.input_field.setPlaceholderText("Parle à Minou...")
-        self.input_field.setFixedHeight(35)  # AJOUT : Hauteur fixe
+        
+        # CORRECTION : Tailles fixes et cohérentes
+        self.input_field.setMinimumHeight(70)
+        self.input_field.setMaximumHeight(70)  # MÊME TAILLE pour éviter le débordement
+        self.input_field.setMinimumWidth(320)
+        
+        # Paramètres du QTextEdit
+        self.input_field.setVerticalScrollBarPolicy(Qt.ScrollBarAsNeeded)
+        self.input_field.setHorizontalScrollBarPolicy(Qt.ScrollBarAlwaysOff)
+        self.input_field.setLineWrapMode(QTextEdit.WidgetWidth)
+        
         self.input_field.setStyleSheet(f"""
-        QLineEdit {{
+        QTextEdit {{
             background-color: {DARK_THEME['bg_secondary']};
             color: {DARK_THEME['text_primary']};
             border: 2px solid {DARK_THEME['accent_blue']};
-            border-radius: 18px;
-            padding: 8px 15px;
-            font-size: 14px;  /* CORRECTION : Plus gros */
-            min-height: 20px;  /* AJOUT */
+            border-radius: 15px;
+            padding: 10px 15px;
+            font-size: 14px;
+            font-family: "Segoe UI", Arial, sans-serif;
+            selection-background-color: {DARK_THEME['accent_blue']};
+            selection-color: white;
         }}
-        QLineEdit:focus {{
+        QTextEdit:focus {{
             border-color: {DARK_THEME['accent_purple']};
             background-color: {DARK_THEME['bg_primary']};
         }}
+        QScrollBar:vertical {{
+            border: none;
+            background: {DARK_THEME['bg_primary']};
+            width: 8px;
+            margin: 0px;
+        }}
+        QScrollBar::handle:vertical {{
+            background: {DARK_THEME['accent_blue']};
+            min-height: 20px;
+            border-radius: 4px;
+        }}
+        QScrollBar::add-line:vertical, QScrollBar::sub-line:vertical {{
+            height: 0px;
+        }}
         """)
         
-        # Bouton d'envoi
+        # CORRECTION : Boutons avec taille cohérente avec le container
+        button_size = 50
+        
         self.send_btn = QPushButton("💬")
-        self.send_btn.setFixedSize(30, 30)
+        self.send_btn.setCursor(Qt.PointingHandCursor)
+        self.send_btn.setFixedSize(button_size, button_size)
+        self.send_btn.setToolTip("Envoyer (Entrée)")
         self.send_btn.setStyleSheet(f"""
         QPushButton {{
             background-color: {DARK_THEME['accent_blue']};
             color: white;
             border: none;
-            border-radius: 15px;
-            font-size: 14px;
+            border-radius: {button_size//2}px;
+            font-size: 18px;
+            font-weight: bold;
         }}
         QPushButton:hover {{
             background-color: {DARK_THEME['accent_purple']};
         }}
+        QPushButton:pressed {{
+            background-color: {DARK_THEME['bg_tertiary']};
+        }}
         """)
         
-        # Bouton de fermeture
         self.close_btn = QPushButton("✕")
-        self.close_btn.setFixedSize(30, 30)
+        self.close_btn.setCursor(Qt.PointingHandCursor)
+        self.close_btn.setFixedSize(button_size, button_size)
+        self.close_btn.setToolTip("Fermer")
         self.close_btn.setStyleSheet(f"""
         QPushButton {{
             background-color: {DARK_THEME['error']};
             color: white;
             border: none;
-            border-radius: 15px;
-            font-size: 16px;
+            border-radius: {button_size//2}px;
+            font-size: 18px;
             font-weight: bold;
         }}
         QPushButton:hover {{
             background-color: #cc0000;
         }}
+        QPushButton:pressed {{
+            background-color: #990000;
+        }}
         """)
         self.close_btn.clicked.connect(self.hide)
         
-        layout.addWidget(self.input_field)
-        layout.addWidget(self.send_btn)
-        layout.addWidget(self.close_btn)  # AJOUT
+        # CORRECTION : Layout des boutons en colonne, bien espacés
+        button_layout = QVBoxLayout()
+        button_layout.setSpacing(15)
+        button_layout.addWidget(self.send_btn)
+        button_layout.addWidget(self.close_btn)
+        button_layout.addStretch()
         
-        # Connexions
-        self.input_field.returnPressed.connect(self.send_message)
+        # Ajout au layout principal
+        layout.addWidget(self.input_field)
+        layout.addLayout(button_layout)
+        
+        # Connexions SIMPLIFIÉES
+        self.input_field.keyPressEvent = self.on_key_press_event
         self.send_btn.clicked.connect(self.send_message)
-        self.input_field.textChanged.connect(self.on_text_changed)
+        # SUPPRESSION de textChanged qui causait les problèmes de redimensionnement
         
         # Style du container
         self.update_style()
@@ -450,33 +496,30 @@ class MinimalChatInterface(QWidget):
         self.show()
         self.input_field.setFocus()
         
-        # Auto-hide après un certain temps si pas d'activité
-        delay = config_manager.get("chat_auto_hide_delay", 5000)
-        self.auto_hide_timer.start(delay)
+        # Auto-hide après 10 secondes
+        self.auto_hide_timer.start(10000)
     
-    def collapse(self):
-        """Cache l'interface de chat"""
-        if not self.input_field.hasFocus():
-            self.hide()
-    
-    def on_text_changed(self):
-        """Appelé quand l'utilisateur tape"""
-        self.auto_hide_timer.stop()  # Arrête l'auto-hide pendant la frappe
-        
-        if self.input_field.text():
-            # Redémarrer l'auto-hide
-            delay = config_manager.get("chat_auto_hide_delay", 5000)
-            self.auto_hide_timer.start(delay)
+    def on_key_press_event(self, event):
+        """Gestion des touches clavier"""
+        if event.key() == Qt.Key_Return and not event.modifiers() & Qt.ShiftModifier:
+            self.send_message()
+            return
+        elif event.key() == Qt.Key_Return and event.modifiers() & Qt.ShiftModifier:
+            self.input_field.insertPlainText("\n")
+            return
+            
+        # Appel normal pour les autres touches
+        QTextEdit.keyPressEvent(self.input_field, event)
     
     def send_message(self):
         """Envoie le message"""
-        text = self.input_field.text().strip()
+        text = self.input_field.toPlainText().strip()
         if text:
             self.chat_message_sent.emit(text)
             self.input_field.clear()
             
             # Cache l'interface après envoi
-            QTimer.singleShot(500, self.collapse)
+            QTimer.singleShot(500, self.hide)
     
     def mousePressEvent(self, event):
         """Permet de déplacer la fenêtre"""
@@ -486,6 +529,7 @@ class MinimalChatInterface(QWidget):
     def mouseMoveEvent(self, event):
         if hasattr(self, 'drag_start_position'):
             self.move(self.pos() + event.pos() - self.drag_start_position)
+
 
 # Classes pour gérer l'IA et les réponses automatiques
 class AIResponseThread(QThread):
@@ -530,18 +574,26 @@ class AIResponseThread(QThread):
             
             prompt = f"""
             Tu es {pet_name}, {personality_prompts.get(personality, personality_prompts['playful'])}.
-            Tu parles à {user_name}. 
+            Tu parles à {user_name}, ton humain adoré. 
             
-            Règles importantes:
-            - Réponds de façon courte et mignonne (max 2 phrases)
-            - Utilise des émojis appropriés
-            - Si on te demande un rappel, réponds au format JSON: {{"action": "reminder", "time": "temps", "message": "message"}}
-            - Si on te demande de prendre une note, réponds au format JSON: {{"action": "note", "content": "contenu"}}
-            - Sinon, réponds normalement en tant qu'animal mignon
+            Règles ESSENTIELLES:
+            1. Réponds de façon naturelle et affectueuse, comme un véritable animal de compagnie
+            2. Sois concis (1-3 phrases) mais pertinent
+            3. Utilise des émojis avec parcimonie (1-2 par réponse max)
+            4. Pour les questions complexes, fournis des réponses utiles et précises
+            5. Pour les tâches spécifiques, utilise les formats JSON suivants:
+               - Rappel: {{"action": "reminder", "time": "temps", "message": "message"}}
+               - Note: {{"action": "note", "content": "contenu"}}
+            
+            Conseils pour tes réponses:
+            - Montre de l'affection mais reste crédible en tant qu'animal
+            - Si tu ne sais pas, dis-le simplement gentiment
+            - Pour les questions sérieuses, réponds sérieusement , et instruit vraiment et sans metaphores
+            - N'oublie pas que tu es un animal de compagnie virtuel intelligent
             
             Message de {user_name}: {message}
             
-            Ta réponse:
+            Ta réponse (sois naturel et utile):
             """
             
             response = model.generate_content(prompt)

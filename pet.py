@@ -273,19 +273,22 @@ class MinouPet(QWidget):
         self.animation_timer.start(config_manager.get("animation_speed", ANIMATION_FRAME_RATE))
         self.movement_timer.start(16)  # ~60 FPS
         
-        # CORRECTION : Intervalles plus longs pour moins de mouvement
-        self.random_behavior_timer.start(8000)  # 8 secondes au lieu de 3
-        self.poop_spawn_timer.start(30000)  # 30 secondes au lieu de 15
+        # CORRECTION : Premier intervalle aléatoire plus long
+        initial_behavior_delay = random.randint(15000, 45000)  # 15-45 secondes
+        self.random_behavior_timer.start(initial_behavior_delay)
         
-        # Messages aléatoires moins fréquents
+        # Poop encore moins fréquent
+        self.poop_spawn_timer.start(random.randint(60000, 120000))  # 1-2 minutes
+        
+        # Messages aléatoires beaucoup moins fréquents
         if config_manager.get("random_messages_enabled", True):
-            interval_range = config_manager.get("random_message_interval", [600, 1800])  # 10-30 min
+            interval_range = config_manager.get("random_message_interval", [1200, 3600])  # 20-60 min
             interval = random.randint(interval_range[0], interval_range[1]) * 1000
             self.random_message_timer.start(interval)
         
-        # CORRECTION : Audio moins fréquent (1 fois par minute)
+        # Audio moins fréquent
         if config_manager.get("sound_enabled", True):
-            self.audio_play_timer.start(60000)  # 60 secondes
+            self.audio_play_timer.start(random.randint(90000, 180000))  # 1.5-3 minutes
         
         # Animation du tray
         self.tray_animation_timer.start(ANIMATION_FRAME_RATE * 2)
@@ -656,38 +659,102 @@ class MinouPet(QWidget):
                     self._set_animation('Idle')
     
     def _random_movement(self):
-        """Génère un mouvement aléatoire"""
+        """Génère un mouvement aléatoire avec de longues pauses"""
         if (self.is_playing_one_shot_animation or self.is_sliding or 
             self._is_manual_moving or self.is_dead or self.target_food_item or
-            self.quiet_mode):  # AJOUT : vérifier le mode tranquille
+            self.quiet_mode):
             return
         
         choice = random.random()
         speed = config_manager.get("movement_speed", MOVEMENT_SPEED)
         
-        # 15% chance de courir vers un bord
-        if choice < 0.15:
-            self._start_edge_run()
-        # 15% chance de glisser
-        elif choice < 0.30:
-            self._start_slide_behavior()
-        # 10% chance de sauter
-        elif choice < 0.40:
-            self._play_one_shot_animation('Jump')
-        # 40% chance de marcher
-        elif choice < 0.80:
+        # NOUVELLES PROBABILITÉS : Beaucoup plus de pauses !
+        if choice < 0.60:  # 60% de chance de ne rien faire (LONG IDLE)
+            self.cat_velocity_x = 0.0
+            self.cat_velocity_y = 0.0
+            self._set_animation('Idle')
+            
+            # Programmer le prochain mouvement dans LONGTEMPS
+            next_delay = random.choice([
+                random.randint(30000, 60000),    # 30s-1min (40% de chance)
+                random.randint(60000, 120000),   # 1-2min (30% de chance)  
+                random.randint(120000, 300000),  # 2-5min (20% de chance)
+            ])
+            
+            print(f"😴 Minou se repose pendant {next_delay//1000} secondes")
+            self.random_behavior_timer.start(next_delay)
+            
+        elif choice < 0.75:  # 15% de chance de marcher un peu
             angle = random.uniform(0, 2 * math.pi)
-            vx = speed * random.uniform(0.7, 1.3) * math.cos(angle)
-            vy = speed * random.uniform(0.7, 1.3) * math.sin(angle)
+            vx = speed * random.uniform(0.5, 1.0) * math.cos(angle)
+            vy = speed * random.uniform(0.5, 1.0) * math.sin(angle)
             
             self.cat_velocity_x = vx
             self.cat_velocity_y = vy
             self._set_animation('Walk')
-        # 20% chance de rester immobile
-        else:
+            
+            # Marcher pendant peu de temps seulement
+            walk_duration = random.randint(3000, 8000)  # 3-8 secondes
+            QTimer.singleShot(walk_duration, self._stop_walking)
+            
+            # Prochain comportement dans un délai moyen
+            next_delay = random.randint(20000, 90000)  # 20s-1.5min
+            self.random_behavior_timer.start(next_delay)
+            
+        elif choice < 0.85:  # 10% de chance de courir vers un bord
+            self._start_edge_run()
+            # Edge run programme son propre prochain délai
+            next_delay = random.randint(45000, 180000)  # 45s-3min après la course
+            QTimer.singleShot(10000, lambda: self.random_behavior_timer.start(next_delay))
+            
+        elif choice < 0.92:  # 7% de chance de glisser
+            self._start_slide_behavior()
+            # Même logique que pour la course
+            next_delay = random.randint(30000, 120000)  # 30s-2min après glissade
+            QTimer.singleShot(8000, lambda: self.random_behavior_timer.start(next_delay))
+            
+        else:  # 8% de chance de sauter
+            self._play_one_shot_animation('Jump')
+            # Délai après le saut
+            next_delay = random.randint(25000, 90000)  # 25s-1.5min
+            QTimer.singleShot(5000, lambda: self.random_behavior_timer.start(next_delay))
+
+    def _stop_walking(self):
+        """Arrête la marche et met en idle"""
+        if not self.is_playing_one_shot_animation and not self._is_manual_moving:
             self.cat_velocity_x = 0.0
             self.cat_velocity_y = 0.0
             self._set_animation('Idle')
+
+    def _check_activity(self):
+        """Vérifie s'il faut reprendre l'activité après le mode tranquille"""
+        if self.quiet_mode:
+            # Chance de reprendre l'activité automatiquement
+            if random.random() < 0.3:  # 30% de chance de reprendre
+                self._resume_activity()
+            else:
+                # Rester tranquille encore un peu
+                QTimer.singleShot(random.randint(60000, 180000), self._check_activity)
+
+    def _resume_activity(self):
+        """Reprend l'activité normale"""
+        self.quiet_mode = False
+        
+        if not self.is_dead:
+            # Reprendre avec un délai initial plus long
+            initial_delay = random.randint(30000, 120000)  # 30s-2min
+            self.random_behavior_timer.start(initial_delay)
+            
+            if config_manager.get("sound_enabled", True):
+                self.audio_play_timer.start(random.randint(60000, 180000))
+            
+            # Messages et poop avec délais longs
+            if config_manager.get("random_messages_enabled", True):
+                self.random_message_timer.start(random.randint(300000, 1800000))  # 5-30min
+            
+            self.poop_spawn_timer.start(random.randint(120000, 300000))  # 2-5min
+        
+        self.stay_quiet_action.setText("😴 Rester tranquille")
     
     def _start_edge_run(self):
         """Démarre une course vers un bord aléatoire"""
@@ -811,15 +878,35 @@ class MinouPet(QWidget):
         self.is_playing_one_shot_animation = False
         self._set_animation('Idle')
         
+        # CORRECTION : Ne pas redémarrer immédiatement, laisser du temps
         if (not self._is_manual_moving and not self.is_dead and 
             not self.target_food_item):
-            self.random_behavior_timer.start(MOVEMENT_CHANGE_DELAY)
+            # Délai aléatoire long avant le prochain mouvement
+            delay = random.randint(20000, 120000)  # 20s-2min
+            self.random_behavior_timer.start(delay)
         
         if (config_manager.get("sound_enabled", True) and 
             self.media_player.state() == QMediaPlayer.StoppedState and 
             not self.is_dead):
-            self.audio_play_timer.start(random.randint(1000, 5000))
-    
+            self.audio_play_timer.start(random.randint(60000, 300000))  # 1-5min
+
+    def _on_control_box_closed(self):
+        """Appelé quand la boîte de contrôle est fermée"""
+        self.control_box = None
+        self._is_manual_moving = False
+        
+        # CORRECTION : Laisser un délai après fermeture des contrôles
+        if not self.is_playing_one_shot_animation and not self.is_dead and not self.active_food_items:
+            delay = random.randint(15000, 60000)  # 15s-1min de pause
+            self.random_behavior_timer.start(delay)
+        
+        self.cat_velocity_x = 0.0
+        self.cat_velocity_y = 0.0
+        self._set_animation('Idle')
+        
+        if config_manager.get("sound_enabled", True) and not self.is_dead:
+            self.audio_play_timer.start(random.randint(30000, 120000))  # 30s-2min
+        
     def _play_dead_animation(self):
         """Joue l'animation de mort"""
         if 'Dead' not in self.sprites:
@@ -994,8 +1081,15 @@ class MinouPet(QWidget):
             self.media_player.setMedia(QMediaContent(audio_url))
             self.media_player.play()
         
-        # CORRECTION : Prochain son dans 60 secondes minimum
-        self.audio_play_timer.start(random.randint(60000, 120000))  # 1-2 minutes
+        # CORRECTION : Sons TRÈS espacés (2-10 minutes)
+        next_audio_delay = random.choice([
+            random.randint(120000, 300000),   # 2-5min (50% de chance)
+            random.randint(300000, 600000),   # 5-10min (30% de chance)  
+            random.randint(600000, 1200000)   # 10-20min (20% de chance)
+        ])
+        
+        print(f"🔊 Prochain son dans {next_audio_delay//60000} minutes")
+        self.audio_play_timer.start(next_audio_delay)
     
     def _audio_state_changed(self, state):
         """Appelé quand l'état audio change"""
@@ -1420,40 +1514,41 @@ class MinouPet(QWidget):
             self.active_food_items and not self.is_dead):
             self.target_food_item = self.active_food_items[0]
             if self.target_food_item:
-                self.random_behavior_timer.stop()
-                self.is_edge_running = False
-                self.is_sliding = False
-                self._is_manual_moving = False
+                pass
     
     def _toggle_quiet_mode(self):
         """Active/désactive le mode tranquille"""
         self.quiet_mode = not self.quiet_mode
         
         if self.quiet_mode:
-            # Arrêter tous les mouvements
+            # Arrêter tous les mouvements et sons
             self.random_behavior_timer.stop()
             self.audio_play_timer.stop()
             self.random_message_timer.stop()
+            self.poop_spawn_timer.stop()
             self.media_player.stop()
             
+            # Arrêter les mouvements en cours
             self.cat_velocity_x = 0.0
             self.cat_velocity_y = 0.0
+            self.is_edge_running = False
+            self.is_sliding = False
             self._set_animation('Idle')
             
+            # Mettre à jour l'interface
             self.stay_quiet_action.setText("😸 Reprendre activité")
-            self.show_bubble("😴 Mode tranquille activé", "info", 2000)
+            self.show_bubble("😴 Mode tranquille activé - Je vais me reposer un peu...", "info", 4000)
+            
+            # Planifier un retour à l'activité plus tard (30-60 secondes)
+            QTimer.singleShot(random.randint(30000, 60000), self._check_activity)
         else:
-            # Reprendre l'activité
-            if not self.is_dead:
-                self.random_behavior_timer.start(8000)
-                if config_manager.get("sound_enabled", True):
-                    self.audio_play_timer.start(60000)
+            # Reprendre l'activité immédiatement
+            self._resume_activity()
             
             self.stay_quiet_action.setText("😴 Rester tranquille")
             self.show_bubble("😸 Je reprends mes activités !", "love", 2000)
-    
-    # Méthode de fermeture
-    def closeEvent(self, event):
+
+# ... (code inchangé)
         """Gestion de la fermeture de l'application"""
         if self.control_box:
             self.control_box.close()

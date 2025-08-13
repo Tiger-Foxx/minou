@@ -235,10 +235,23 @@ class NotesManager:
     
     def save_notes(self):
         try:
-            with open(self.notes_file, 'w', encoding='utf-8') as f:
+            file_path = os.path.abspath(self.notes_file)
+            print(f"🔄 Tentative de sauvegarde des notes dans: {file_path}")
+            print(f"Contenu à sauvegarder: {self.notes}")
+            
+            # Vérifier si le dossier parent existe, sinon le créer
+            os.makedirs(os.path.dirname(file_path), exist_ok=True)
+            
+            with open(file_path, 'w', encoding='utf-8') as f:
                 json.dump(self.notes, f, indent=4, ensure_ascii=False)
+                
+            print("✅ Fichier de notes sauvegardé avec succès")
+            
         except Exception as e:
-            print(f"Erreur lors de la sauvegarde des notes: {e}")
+            import traceback
+            error_details = traceback.format_exc()
+            print(f"❌ Erreur lors de la sauvegarde des notes: {e}")
+            print(f"Détails de l'erreur: {error_details}")
     
     def add_note(self, content):
         note = {

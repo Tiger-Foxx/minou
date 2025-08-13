@@ -41,7 +41,10 @@ DARK_THEME = {
     'text_secondary': '#b3b3b3',
     'border': '#4a4a4a',
     'error': '#ef4444',
-    'warning': '#f59e0b'
+    'warning': '#f59e0b',
+    # AJOUT des couleurs manquantes :
+    'accent_dark_blue': '#0099cc',  # Version plus sombre du bleu
+    'accent_orange': '#f97316',  
 }
 
 class ConfigManager:
