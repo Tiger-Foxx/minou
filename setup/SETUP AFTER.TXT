@@ -1,0 +1,126 @@
+================================================================================
+    🎉 CONGRATULATIONS! MINOU HAS BEEN SUCCESSFULLY INSTALLED! 🐾
+================================================================================
+
+Thank you for installing Minou - your new intelligent desktop companion!
+
+IMMEDIATE NEXT STEPS:
+┌─────────────────────────────────────────────────────────────────────────┐
+│  1. 🚀 LAUNCH MINOU                                                    │
+│     • Double-click the desktop shortcut "Minou"                        │
+│     • Or go to Start Menu → Programs → Minou → Minou                   │
+│                                                                         │
+│  2. 🐾 MEET YOUR PET                                                   │
+│     • Your pet will appear somewhere on your screen                    │
+│     • Look for the animated cat or dog character                       │
+│     • Check the system tray for the Minou icon                         │
+│                                                                         │
+│  3. 💬 START CHATTING                                                  │
+│     • Double-click on your pet to open the chat                        │
+│     • Or double-click the system tray icon                             │
+│     • Try saying "Hello!" or "What's your name?"                       │
+└─────────────────────────────────────────────────────────────────────────┘
+
+QUICK CONTROLS:
+┌─────────────────────────────────────────────────────────────────────────┐
+│  MOUSE INTERACTIONS:                                                    │
+│  • Single Click on Pet      → Pet/Caress (be gentle!)                  │
+│  • Double-Click on Pet      → Open chat interface                      │
+│  • Click + Drag Pet         → Move pet around the screen               │
+│  • Click on System Tray     → Show/Hide pet                            │
+│  • Right-click System Tray  → Full options menu                        │
+│                                                                         │
+│  FEEDING YOUR PET:                                                      │
+│  • Right-click tray icon → Food → Add Random Food                      │
+│  • Watch your pet run to eat it automatically!                         │
+│                                                                         │
+│  MANUAL CONTROL:                                                        │
+│  • Right-click tray icon → Remote Control                              │
+│  • Use arrow keys or WASD to move your pet                             │
+└─────────────────────────────────────────────────────────────────────────┘
+
+🤖 ENABLE ADVANCED AI (OPTIONAL):
+┌─────────────────────────────────────────────────────────────────────────┐
+│  For intelligent conversations beyond basic responses:                   │
+│                                                                         │
+│  1. Get a FREE API key from: https://aistudio.google.com/              │
+│  2. Right-click tray icon → Settings                                   │
+│  3. Enter your API key in the "AI Configuration" section               │
+│  4. Enable AI and restart Minou                                        │
+│                                                                         │
+│  With AI enabled, your pet can:                                        │
+│  • Answer complex questions                                             │
+│  • Help with calculations                                               │
+│  • Provide personalized advice                                         │
+│  • Have meaningful conversations                                        │
+└─────────────────────────────────────────────────────────────────────────┘
+
+📚 COMPLETE USER GUIDE:
+Your installation includes a comprehensive HTML user guide:
+📁 Installation Folder → user_guide.html
+Or access it via: Right-click tray icon → Help → User Guide
+
+IMPORTANT LOCATIONS:
+┌─────────────────────────────────────────────────────────────────────────┐
+│  📂 Program Files:     C:\Program Files\Minou\                         │
+│  🖥️  Desktop Shortcut:  Minou                                          │
+│  📋 Start Menu:        Start → Programs → Minou                        │
+│  ⚙️  Settings File:     %APPDATA%\Minou\config.json                    │
+│  📝 Notes & Data:      %APPDATA%\Minou\data\                           │
+└─────────────────────────────────────────────────────────────────────────┘
+
+AUTOMATIC STARTUP:
+✅ Minou is configured to start with Windows (you can change this in settings)
+
+TROUBLESHOOTING:
+┌─────────────────────────────────────────────────────────────────────────┐
+│  🔧 Pet doesn't appear:                                                │
+│     • Check system tray for Minou icon                                 │
+│     • Click the icon to show the pet                                   │
+│     • Try restarting Minou                                             │
+│                                                                         │
+│  🔧 Chat doesn't work:                                                 │
+│     • Make sure you're double-clicking the pet                         │
+│     • The chat window may appear briefly then disappear - this is      │
+│       normal, double-click again to reopen                             │
+│                                                                         │
+│  🔧 No sound:                                                          │
+│     • Check Windows volume settings                                    │
+│     • Right-click tray → Enable Audio                                  │
+│                                                                         │
+│  🔧 Performance issues:                                                │
+│     • Right-click tray → Settings → Reduce animation speed             │
+│     • Close other resource-intensive programs                          │
+└─────────────────────────────────────────────────────────────────────────┘
+
+UNINSTALLING:
+If you ever need to uninstall Minou:
+• Windows Settings → Apps → Minou → Uninstall
+• Or Control Panel → Programs and Features → Minou
+
+SUPPORT & COMMUNITY:
+• 📖 Full Documentation: See user_guide.html
+• 🐛 Report Issues: https://github.com/Tiger-Foxx/minou/issues
+• 💬 Discussions: https://github.com/Tiger-Foxx/minou/discussions
+• ⭐ Like the project? Star it on GitHub!
+
+================================================================================
+🎊 ENJOY YOUR NEW INTELLIGENT COMPANION! 🐾
+
+Welcome to the Minou family! We hope you and your virtual pet have 
+many wonderful interactions together.
+
+Don't forget to:
+✨ Feed your pet regularly
+✨ Keep the environment clean  
+✨ Chat with your pet often
+✨ Explore all the customization options
+
+Happy pet ownership! 🏡❤️
+
+                                                    - theTigerFox & the Minou Team
+================================================================================
+
+P.S. Your pet might occasionally leave "surprises" on your screen - 
+     don't worry, just click on them to clean up! It's all part of the 
+     realistic pet experience! 😄💩

@@ -1,0 +1,80 @@
+================================================================================
+                    MINOU - DESKTOP PET COMPANION v2.0
+                         Intelligent Virtual Pet for Windows
+                              Developed by theTigerFox
+================================================================================
+
+DESCRIPTION:
+Minou is more than just a virtual pet - it's your intelligent desktop companion!
+Watch as your adorable pet (cat or dog) roams freely across your screen, 
+performs lifelike animations, and interacts with you through advanced AI 
+conversations.
+
+KEY FEATURES:
+✅ Realistic pet animations (Idle, Walk, Run, Jump, Slide, and more)
+✅ Intelligent AI chat powered by Google Gemini
+✅ Smart notes and reminders system
+✅ System monitoring (CPU, RAM, Battery)
+✅ Interactive feeding system
+✅ Natural behaviors (yes, including bathroom needs!)
+✅ Manual control with virtual remote
+✅ Customizable personality and settings
+✅ System tray integration
+✅ Automatic startup capability
+
+SYSTEM REQUIREMENTS:
+- Windows 10 or Windows 11 (64-bit)
+- 4 GB RAM minimum (8 GB recommended)
+- 200 MB free disk space
+- OpenGL 2.1 compatible graphics
+- Internet connection (optional, for AI features)
+
+WHAT'S NEW IN VERSION 2.0:
+🆕 Complete AI integration with Google Gemini
+🆕 Advanced notes and reminders system
+🆕 System monitoring and alerts
+🆕 Improved animations and physics
+🆕 Modern dark UI theme
+🆕 Enhanced customization options
+🆕 Better performance and stability
+🆕 Comprehensive user guide
+
+INSTALLATION SIZE: ~80-120 MB (optimized with UPX compression)
+
+GETTING STARTED:
+1. Complete the installation process
+2. Launch Minou from the desktop shortcut or Start menu
+3. Your pet will appear on your screen automatically
+4. Right-click the system tray icon for options
+5. Double-click on your pet to start chatting!
+
+AI SETUP (OPTIONAL):
+For advanced AI features, get a free API key from:
+https://aistudio.google.com/
+
+Then configure it in Minou's settings for intelligent conversations!
+
+SUPPORT:
+- User Guide: Complete HTML guide included
+- GitHub: https://github.com/Tiger-Foxx/minou
+- Issues: Report bugs via GitHub Issues
+- Community: Join discussions on GitHub
+
+LICENSE: MIT License (See LICENSE.txt for details)
+
+PRIVACY:
+Minou respects your privacy:
+- No data collection or telemetry
+- All notes and settings stored locally
+- AI conversations only sent to Google when explicitly using AI features
+- No personal information shared
+
+Enjoy your new intelligent companion! 🐾
+
+================================================================================
+Installation Date: [DATE]
+Version: 2.0.0
+Build: Professional Release
+Installer: Inno Setup with LZMA2 Ultra Compression
+Developer: theTigerFox
+================================================================================
