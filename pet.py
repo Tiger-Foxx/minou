@@ -1285,9 +1285,61 @@ class MinouPet(QWidget):
         pet_name = config_manager.get("pet_name", "Minou")
         print(f"🤖 {pet_name}: {response}")
         
-        # Afficher la réponse dans une bulle
+        # AJOUT : Parser les commandes JSON
+        try:
+            import json
+            import re
+            
+            # Chercher du JSON dans la réponse
+            json_pattern = r'\{"action":\s*"[^"]+",.*?\}'
+            json_matches = re.findall(json_pattern, response, re.DOTALL)
+            
+            if json_matches:
+                for json_str in json_matches:
+                    try:
+                        command = json.loads(json_str)
+                        action = command.get("action", "")
+                        
+                        if action == "note":
+                            content = command.get("content", "")
+                            if content:
+                                # Sauvegarder la note
+                                notes_manager.add_note(content)
+                                print(f"📝 Note sauvegardée: {content}")
+                                
+                                # Confirmation à l'utilisateur
+                                self.show_bubble(f"📝 Note sauvegardée: {content[:40]}...", "info", 4000)
+                                
+                                # Ne pas afficher le JSON dans la bulle
+                                clean_response = response.replace(json_str, "").strip()
+                                if clean_response:
+                                    self.show_bubble(clean_response, message_type, 5000)
+                                return
+                        
+                        elif action == "reminder":
+                            time_str = command.get("time", "")
+                            message = command.get("message", "")
+                            if time_str and message:
+                                # TODO: Implémenter les rappels avec reminder_manager
+                                print(f"⏰ Rappel programmé: {time_str} - {message}")
+                                self.show_bubble(f"⏰ Rappel programmé: {message}", "info", 4000)
+                                
+                                # Ne pas afficher le JSON dans la bulle
+                                clean_response = response.replace(json_str, "").strip()
+                                if clean_response:
+                                    self.show_bubble(clean_response, message_type, 5000)
+                                return
+                                
+                    except json.JSONDecodeError:
+                        print(f"❌ Erreur parsing JSON: {json_str}")
+                        continue
+        
+        except Exception as e:
+            print(f"❌ Erreur lors du traitement de la réponse IA: {e}")
+        
+        # Afficher la réponse normale dans une bulle (sans JSON)
         self.show_bubble(response, message_type, 5000)
-    
+        
     # Méthodes de messages et notifications
     def _show_random_message(self):
         """Affiche un message aléatoire"""

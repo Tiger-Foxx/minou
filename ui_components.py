@@ -343,8 +343,8 @@ class MinimalChatInterface(QWidget):
         self.setWindowFlags(Qt.FramelessWindowHint | Qt.WindowStaysOnTopHint | Qt.Tool)
         self.setAttribute(Qt.WA_TranslucentBackground)
         
-        # CORRECTION : Commencer avec une taille plus grande
-        self.setFixedSize(450, 120)  # Plus grand dès le départ
+        # CORRECTION : Taille optimisée pour layout horizontal
+        self.setFixedSize(420, 80)
         
         self.auto_hide_timer = QTimer()
         self.auto_hide_timer.timeout.connect(self.hide)
@@ -354,86 +354,56 @@ class MinimalChatInterface(QWidget):
         self.hide()
         
     def _init_ui(self):
-        # CORRECTION : Container qui grandit avec le contenu
+        # Container avec taille cohérente
         self.container = QFrame(self)
-        self.container.setGeometry(0, 0, 450, 120)  # Taille initiale plus grande
+        self.container.setGeometry(0, 0, 420, 80)
         
         layout = QHBoxLayout(self.container)
-        layout.setContentsMargins(15, 15, 15, 15)  # Marges cohérentes
-        layout.setSpacing(10)
+        layout.setContentsMargins(10, 10, 10, 10)
+        layout.setSpacing(8)
         
-        # CORRECTION : Champ de saisie avec tailles cohérentes
-        self.input_field = QTextEdit()
+        # Champ de saisie simple
+        self.input_field = QLineEdit()  # CHANGEMENT : QLineEdit au lieu de QTextEdit
         self.input_field.setPlaceholderText("Parle à Minou...")
-        
-        # CORRECTION : Tailles fixes et cohérentes
-        self.input_field.setMinimumHeight(70)
-        self.input_field.setMaximumHeight(70)  # MÊME TAILLE pour éviter le débordement
-        self.input_field.setMinimumWidth(320)
-        
-        # Paramètres du QTextEdit
-        self.input_field.setVerticalScrollBarPolicy(Qt.ScrollBarAsNeeded)
-        self.input_field.setHorizontalScrollBarPolicy(Qt.ScrollBarAlwaysOff)
-        self.input_field.setLineWrapMode(QTextEdit.WidgetWidth)
+        self.input_field.setMinimumHeight(50)
+        self.input_field.setMaximumHeight(50)
         
         self.input_field.setStyleSheet(f"""
-        QTextEdit {{
+        QLineEdit {{
             background-color: {DARK_THEME['bg_secondary']};
             color: {DARK_THEME['text_primary']};
             border: 2px solid {DARK_THEME['accent_blue']};
-            border-radius: 15px;
-            padding: 10px 15px;
+            border-radius: 25px;
+            padding: 12px 20px;
             font-size: 14px;
             font-family: "Segoe UI", Arial, sans-serif;
-            selection-background-color: {DARK_THEME['accent_blue']};
-            selection-color: white;
         }}
-        QTextEdit:focus {{
+        QLineEdit:focus {{
             border-color: {DARK_THEME['accent_purple']};
             background-color: {DARK_THEME['bg_primary']};
         }}
-        QScrollBar:vertical {{
-            border: none;
-            background: {DARK_THEME['bg_primary']};
-            width: 8px;
-            margin: 0px;
-        }}
-        QScrollBar::handle:vertical {{
-            background: {DARK_THEME['accent_blue']};
-            min-height: 20px;
-            border-radius: 4px;
-        }}
-        QScrollBar::add-line:vertical, QScrollBar::sub-line:vertical {{
-            height: 0px;
-        }}
         """)
         
-        # CORRECTION : Boutons avec taille cohérente avec le container
+        # CORRECTION : Boutons EN LIGNE (pas en colonne)
         button_size = 50
         
         self.send_btn = QPushButton("💬")
-        self.send_btn.setCursor(Qt.PointingHandCursor)
         self.send_btn.setFixedSize(button_size, button_size)
-        self.send_btn.setToolTip("Envoyer (Entrée)")
+        self.send_btn.setToolTip("Envoyer")
         self.send_btn.setStyleSheet(f"""
         QPushButton {{
             background-color: {DARK_THEME['accent_blue']};
             color: white;
             border: none;
             border-radius: {button_size//2}px;
-            font-size: 18px;
-            font-weight: bold;
+            font-size: 16px;
         }}
         QPushButton:hover {{
             background-color: {DARK_THEME['accent_purple']};
         }}
-        QPushButton:pressed {{
-            background-color: {DARK_THEME['bg_tertiary']};
-        }}
         """)
         
         self.close_btn = QPushButton("✕")
-        self.close_btn.setCursor(Qt.PointingHandCursor)
         self.close_btn.setFixedSize(button_size, button_size)
         self.close_btn.setToolTip("Fermer")
         self.close_btn.setStyleSheet(f"""
@@ -442,36 +412,50 @@ class MinimalChatInterface(QWidget):
             color: white;
             border: none;
             border-radius: {button_size//2}px;
-            font-size: 18px;
+            font-size: 16px;
             font-weight: bold;
         }}
         QPushButton:hover {{
             background-color: #cc0000;
         }}
-        QPushButton:pressed {{
-            background-color: #990000;
-        }}
         """)
+        
+        # CORRECTION : Layout HORIZONTAL
+        layout.addWidget(self.input_field)  # Champ prend le plus d'espace
+        layout.addWidget(self.send_btn)     # Boutons côte à côte
+        layout.addWidget(self.close_btn)
+        
+        # Connexions
+        self.input_field.returnPressed.connect(self.send_message)
+        self.send_btn.clicked.connect(self.send_message)
         self.close_btn.clicked.connect(self.hide)
         
-        # CORRECTION : Layout des boutons en colonne, bien espacés
-        button_layout = QVBoxLayout()
-        button_layout.setSpacing(15)
-        button_layout.addWidget(self.send_btn)
-        button_layout.addWidget(self.close_btn)
-        button_layout.addStretch()
+        # Connexions pour éviter la fermeture prématurée
+        self.input_field.textChanged.connect(self.on_typing)
         
-        # Ajout au layout principal
-        layout.addWidget(self.input_field)
-        layout.addLayout(button_layout)
-        
-        # Connexions SIMPLIFIÉES
-        self.input_field.keyPressEvent = self.on_key_press_event
-        self.send_btn.clicked.connect(self.send_message)
-        # SUPPRESSION de textChanged qui causait les problèmes de redimensionnement
-        
-        # Style du container
         self.update_style()
+    
+    def on_typing(self):
+        """Appelé quand l'utilisateur tape - annule l'auto-hide"""
+        self.auto_hide_timer.stop()  # Arrête le timer de fermeture
+    
+    def show_chat(self):
+        """Affiche l'interface de chat"""
+        self.show()
+        self.input_field.setFocus()
+        
+        # CORRECTION : Auto-hide plus long (30 secondes)
+        self.auto_hide_timer.start(30000)
+    
+    def send_message(self):
+        """Envoie le message"""
+        text = self.input_field.text().strip()
+        if text:
+            self.chat_message_sent.emit(text)
+            self.input_field.clear()
+            
+            # CORRECTION : Ne pas fermer immédiatement, laisser du temps pour voir la réponse
+            self.auto_hide_timer.start(15000)  # 15 secondes après envoi
     
     def update_style(self):
         self.container.setStyleSheet(f"""
@@ -480,56 +464,23 @@ class MinimalChatInterface(QWidget):
                 stop:0 {DARK_THEME['bg_secondary']}, 
                 stop:1 {DARK_THEME['bg_primary']});
             border: 2px solid {DARK_THEME['accent_blue']};
-            border-radius: 20px;
+            border-radius: 15px;
         }}
         """)
         
-        # Effet d'ombre
         shadow = QGraphicsDropShadowEffect()
         shadow.setBlurRadius(15)
         shadow.setColor(QColor(0, 212, 255, 80))
         shadow.setOffset(0, 2)
         self.container.setGraphicsEffect(shadow)
     
-    def show_chat(self):
-        """Affiche l'interface de chat"""
-        self.show()
-        self.input_field.setFocus()
-        
-        # Auto-hide après 10 secondes
-        self.auto_hide_timer.start(10000)
-    
-    def on_key_press_event(self, event):
-        """Gestion des touches clavier"""
-        if event.key() == Qt.Key_Return and not event.modifiers() & Qt.ShiftModifier:
-            self.send_message()
-            return
-        elif event.key() == Qt.Key_Return and event.modifiers() & Qt.ShiftModifier:
-            self.input_field.insertPlainText("\n")
-            return
-            
-        # Appel normal pour les autres touches
-        QTextEdit.keyPressEvent(self.input_field, event)
-    
-    def send_message(self):
-        """Envoie le message"""
-        text = self.input_field.toPlainText().strip()
-        if text:
-            self.chat_message_sent.emit(text)
-            self.input_field.clear()
-            
-            # Cache l'interface après envoi
-            QTimer.singleShot(500, self.hide)
-    
     def mousePressEvent(self, event):
-        """Permet de déplacer la fenêtre"""
         if event.button() == Qt.LeftButton:
             self.drag_start_position = event.pos()
     
     def mouseMoveEvent(self, event):
         if hasattr(self, 'drag_start_position'):
             self.move(self.pos() + event.pos() - self.drag_start_position)
-
 
 # Classes pour gérer l'IA et les réponses automatiques
 class AIResponseThread(QThread):
